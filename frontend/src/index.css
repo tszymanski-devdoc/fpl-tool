@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background-color: #0A0F1E;
+    color: #F0F4FF;
+    font-family: 'Outfit', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  #root {
+    min-height: 100svh;
+  }
+}
+
+@layer utilities {
+  .font-display { font-family: 'Barlow Condensed', sans-serif; }
+  .font-mono    { font-family: 'JetBrains Mono', monospace; }
+
+  /* Noise texture overlay */
+  .noise::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  /* Green glow */
+  .glow-green {
+    box-shadow: 0 0 20px rgba(0, 230, 118, 0.25), 0 0 40px rgba(0, 230, 118, 0.1);
+  }
+
+  .text-gradient-green {
+    background: linear-gradient(135deg, #00E676 0%, #00B85A 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #0A0F1E; }
+::-webkit-scrollbar-thumb { background: #2A3550; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #3A4A6A; }

@@ -1,0 +1,26 @@
+using FplTool.Modules.Picks.Infrastructure;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace FplTool.Modules.Picks;
+
+public static class PicksModule
+{
+    public static IServiceCollection AddPicksModule(this IServiceCollection services, IConfiguration configuration)
+    {
+        var connectionString = configuration.GetConnectionString("FplToolDb")
+                               ?? throw new InvalidOperationException("Connection string 'FplToolDb' is not configured.");
+
+        services.AddDbContext<PicksDbContext>(options =>
+            options.UseMySql(
+                connectionString,
+                ServerVersion.AutoDetect(connectionString),
+                mysql => mysql.MigrationsAssembly(typeof(PicksModule).Assembly.GetName().Name)
+            ));
+
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(PicksModule).Assembly));
+
+        return services;
+    }
+}

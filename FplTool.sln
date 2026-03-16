@@ -1,0 +1,85 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{6BC4EEB0-39CA-421E-A5D7-C727956EC6C6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FplTool.SharedKernel", "src\FplTool.SharedKernel\FplTool.SharedKernel.csproj", "{CC3AB2B1-CBDA-449A-A481-B977A34586ED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FplTool.Modules.FplIntegration", "src\FplTool.Modules.FplIntegration\FplTool.Modules.FplIntegration.csproj", "{1ABA9D31-2125-42B9-9D2F-F82E5134481D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FplTool.Modules.Auth", "src\FplTool.Modules.Auth\FplTool.Modules.Auth.csproj", "{ABDCA4A8-6463-49CC-A4CE-CD21EAAFB9E5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FplTool.Modules.Picks", "src\FplTool.Modules.Picks\FplTool.Modules.Picks.csproj", "{77E2F0FD-3E54-4E5F-BD43-4E014379F7A7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FplTool.Modules.Leaderboard", "src\FplTool.Modules.Leaderboard\FplTool.Modules.Leaderboard.csproj", "{74B4E817-795B-4528-8589-42EF6F6B107C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FplTool.Api", "src\FplTool.Api\FplTool.Api.csproj", "{3697B931-BFBC-47BF-8858-B402FC0C66A1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{C677A08C-9D88-4D56-951A-F4B5C7178E40}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FplTool.Modules.Auth.Tests", "tests\FplTool.Modules.Auth.Tests\FplTool.Modules.Auth.Tests.csproj", "{AA358DAA-9968-4859-87DC-1E5108F87B4E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FplTool.Modules.Picks.Tests", "tests\FplTool.Modules.Picks.Tests\FplTool.Modules.Picks.Tests.csproj", "{2D634112-E496-4DDD-A509-832AEFADE02E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FplTool.Modules.FplIntegration.Tests", "tests\FplTool.Modules.FplIntegration.Tests\FplTool.Modules.FplIntegration.Tests.csproj", "{95CDE833-9956-49C8-9C71-0C191CF5700C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CC3AB2B1-CBDA-449A-A481-B977A34586ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC3AB2B1-CBDA-449A-A481-B977A34586ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC3AB2B1-CBDA-449A-A481-B977A34586ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC3AB2B1-CBDA-449A-A481-B977A34586ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1ABA9D31-2125-42B9-9D2F-F82E5134481D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1ABA9D31-2125-42B9-9D2F-F82E5134481D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1ABA9D31-2125-42B9-9D2F-F82E5134481D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1ABA9D31-2125-42B9-9D2F-F82E5134481D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABDCA4A8-6463-49CC-A4CE-CD21EAAFB9E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABDCA4A8-6463-49CC-A4CE-CD21EAAFB9E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABDCA4A8-6463-49CC-A4CE-CD21EAAFB9E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABDCA4A8-6463-49CC-A4CE-CD21EAAFB9E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77E2F0FD-3E54-4E5F-BD43-4E014379F7A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77E2F0FD-3E54-4E5F-BD43-4E014379F7A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77E2F0FD-3E54-4E5F-BD43-4E014379F7A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77E2F0FD-3E54-4E5F-BD43-4E014379F7A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74B4E817-795B-4528-8589-42EF6F6B107C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74B4E817-795B-4528-8589-42EF6F6B107C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74B4E817-795B-4528-8589-42EF6F6B107C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74B4E817-795B-4528-8589-42EF6F6B107C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3697B931-BFBC-47BF-8858-B402FC0C66A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3697B931-BFBC-47BF-8858-B402FC0C66A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3697B931-BFBC-47BF-8858-B402FC0C66A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3697B931-BFBC-47BF-8858-B402FC0C66A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA358DAA-9968-4859-87DC-1E5108F87B4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA358DAA-9968-4859-87DC-1E5108F87B4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA358DAA-9968-4859-87DC-1E5108F87B4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA358DAA-9968-4859-87DC-1E5108F87B4E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D634112-E496-4DDD-A509-832AEFADE02E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D634112-E496-4DDD-A509-832AEFADE02E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D634112-E496-4DDD-A509-832AEFADE02E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D634112-E496-4DDD-A509-832AEFADE02E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95CDE833-9956-49C8-9C71-0C191CF5700C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95CDE833-9956-49C8-9C71-0C191CF5700C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95CDE833-9956-49C8-9C71-0C191CF5700C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95CDE833-9956-49C8-9C71-0C191CF5700C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{CC3AB2B1-CBDA-449A-A481-B977A34586ED} = {6BC4EEB0-39CA-421E-A5D7-C727956EC6C6}
+		{1ABA9D31-2125-42B9-9D2F-F82E5134481D} = {6BC4EEB0-39CA-421E-A5D7-C727956EC6C6}
+		{ABDCA4A8-6463-49CC-A4CE-CD21EAAFB9E5} = {6BC4EEB0-39CA-421E-A5D7-C727956EC6C6}
+		{77E2F0FD-3E54-4E5F-BD43-4E014379F7A7} = {6BC4EEB0-39CA-421E-A5D7-C727956EC6C6}
+		{74B4E817-795B-4528-8589-42EF6F6B107C} = {6BC4EEB0-39CA-421E-A5D7-C727956EC6C6}
+		{3697B931-BFBC-47BF-8858-B402FC0C66A1} = {6BC4EEB0-39CA-421E-A5D7-C727956EC6C6}
+		{AA358DAA-9968-4859-87DC-1E5108F87B4E} = {C677A08C-9D88-4D56-951A-F4B5C7178E40}
+		{2D634112-E496-4DDD-A509-832AEFADE02E} = {C677A08C-9D88-4D56-951A-F4B5C7178E40}
+		{95CDE833-9956-49C8-9C71-0C191CF5700C} = {C677A08C-9D88-4D56-951A-F4B5C7178E40}
+	EndGlobalSection
+EndGlobal

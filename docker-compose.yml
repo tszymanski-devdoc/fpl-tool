@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: fpltool-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root_local
+      MYSQL_DATABASE: fpltool
+      MYSQL_USER: fpltool
+      MYSQL_PASSWORD: fpltool_local
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "fpltool", "--password=fpltool_local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mysql_data:

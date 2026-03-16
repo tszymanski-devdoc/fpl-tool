@@ -1,10 +1,9 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY FplTool.sln .
 COPY src/ src/
 
-RUN dotnet restore FplTool.sln
+RUN dotnet restore src/FplTool.Api/FplTool.Api.csproj
 RUN dotnet publish src/FplTool.Api/FplTool.Api.csproj \
     -c Release -o /app/publish --no-restore
 

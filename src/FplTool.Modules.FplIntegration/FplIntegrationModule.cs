@@ -1,3 +1,4 @@
+using FplTool.Modules.FplIntegration.Auth;
 using FplTool.Modules.FplIntegration.Caching;
 using FplTool.Modules.FplIntegration.Configuration;
 using FplTool.Modules.FplIntegration.Contracts;
@@ -18,6 +19,9 @@ public static class FplIntegrationModule
 
         services.AddMemoryCache();
 
+        services.AddSingleton<FplAuthService>();
+        services.AddTransient<FplAuthHandler>();
+
         services.AddHttpClient<FplHttpClient>(client =>
         {
             client.BaseAddress = new Uri(options.BaseUrl);
@@ -28,6 +32,7 @@ public static class FplIntegrationModule
             client.DefaultRequestHeaders.Add("Origin", "https://fantasy.premierleague.com");
             client.Timeout = TimeSpan.FromSeconds(30);
         })
+        .AddHttpMessageHandler<FplAuthHandler>()
         .AddStandardResilienceHandler(resilienceOptions =>
         {
             resilienceOptions.Retry.MaxRetryAttempts = 3;

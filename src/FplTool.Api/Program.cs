@@ -64,6 +64,16 @@ try
 
     builder.Services.AddAuthorization();
 
+    // CORS
+    var allowedOrigins = builder.Configuration["Cors:AllowedOrigins"]?.Split(',', StringSplitOptions.RemoveEmptyEntries) ?? [];
+    builder.Services.AddCors(options =>
+    {
+        options.AddDefaultPolicy(policy =>
+            policy.WithOrigins(allowedOrigins)
+                  .AllowAnyHeader()
+                  .AllowAnyMethod());
+    });
+
     // Current user context
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddScoped<ICurrentUserContext, CurrentUserContext>();
@@ -116,6 +126,7 @@ try
     }
 
     app.UseSerilogRequestLogging();
+    app.UseCors();
     app.UseAuthentication();
     app.UseAuthorization();
     app.MapControllers();

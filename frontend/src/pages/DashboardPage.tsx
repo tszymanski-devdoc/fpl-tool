@@ -38,7 +38,6 @@ export function DashboardPage() {
 
   const myRank = leaderboard?.findIndex((e) => e.userId === user?.id)
   const myEntry = myRank !== undefined && myRank >= 0 ? leaderboard![myRank] : null
-  const top5 = leaderboard?.slice(0, 5) ?? []
   const isDeadlinePassed = data ? new Date(data.deadline) < new Date() : false
 
   return (
@@ -88,8 +87,8 @@ export function DashboardPage() {
           <StatCard label="GW" value={data?.gameweekId ?? '—'} />
         </div>
 
-        {/* Mini leaderboard */}
-        {top5.length > 0 && (
+        {/* Leaderboard */}
+        {leaderboard && leaderboard.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -97,34 +96,66 @@ export function DashboardPage() {
             className="rounded-xl border border-border bg-card overflow-hidden"
           >
             <div className="flex items-center justify-between px-5 py-3 border-b border-border">
-              <h2 className="font-display font-bold text-lg text-white">Top Managers</h2>
-              <Link to="/leaderboard" className="text-green text-sm hover:underline">
-                Full table →
-              </Link>
+              <h2 className="font-display font-bold text-lg text-white">Leaderboard</h2>
             </div>
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left px-5 py-2 text-muted text-xs font-medium">#</th>
-                  <th className="text-left px-5 py-2 text-muted text-xs font-medium">Team</th>
-                  <th className="text-right px-5 py-2 text-muted text-xs font-medium">Pts</th>
-                </tr>
-              </thead>
-              <tbody>
-                {top5.map((entry) => (
-                  <tr
-                    key={entry.userId}
-                    className={`border-b border-border/50 last:border-0 ${entry.userId === user?.id ? 'bg-green/5' : ''}`}
-                  >
-                    <td className="px-5 py-3 font-mono text-muted">{entry.rank}</td>
-                    <td className={`px-5 py-3 font-medium ${entry.userId === user?.id ? 'text-green' : 'text-white'}`}>
-                      {entry.teamName}
-                    </td>
-                    <td className="px-5 py-3 text-right font-mono font-bold text-white">{entry.totalPoints}</td>
+
+            {/* Podium — top 3 */}
+            <div className="grid grid-cols-3 gap-px bg-border p-px">
+              {leaderboard.slice(0, 3).map((entry, i) => (
+                <motion.div
+                  key={entry.userId}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 + i * 0.1 }}
+                  className={`flex flex-col items-center py-6 px-3 text-center ${i === 0 ? 'bg-green/10' : 'bg-card'}`}
+                >
+                  <span className={`font-display font-extrabold text-4xl ${i === 0 ? 'text-green' : 'text-muted'}`}>
+                    #{entry.rank}
+                  </span>
+                  <span className={`font-display font-bold text-lg mt-1 ${entry.userId === user?.id ? 'text-green' : 'text-white'}`}>
+                    {entry.teamName}
+                    {entry.userId === user?.id && <span className="ml-2 text-xs text-muted">(you)</span>}
+                  </span>
+                  <span className="font-mono text-2xl font-bold text-white mt-2">{entry.totalPoints}</span>
+                  <span className="text-muted text-xs mt-0.5">pts</span>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Rest of table */}
+            {leaderboard.length > 3 && (
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left px-5 py-2 text-muted text-xs font-medium">#</th>
+                    <th className="text-left px-5 py-2 text-muted text-xs font-medium">Team</th>
+                    <th className="text-right px-5 py-2 text-muted text-xs font-medium">Points</th>
+                    <th className="text-right px-5 py-2 text-muted text-xs font-medium hidden sm:table-cell">Picks</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {leaderboard.slice(3).map((entry, i) => (
+                    <motion.tr
+                      key={entry.userId}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.4 + i * 0.03 }}
+                      className={`border-b border-border/50 last:border-0 transition-colors ${
+                        entry.userId === user?.id ? 'bg-green/5' : 'hover:bg-card-hover'
+                      }`}
+                    >
+                      <td className="px-5 py-3 font-mono text-muted">{entry.rank}</td>
+                      <td className={`px-5 py-3 font-medium ${entry.userId === user?.id ? 'text-green' : 'text-white'}`}>
+                        {entry.teamName}
+                        {entry.userId === user?.id && <span className="ml-2 text-xs text-muted">(you)</span>}
+                      </td>
+                      <td className="px-5 py-3 text-right font-mono font-bold text-white">{entry.totalPoints}</td>
+                      <td className="px-5 py-3 text-right font-mono text-muted hidden sm:table-cell">{entry.picksCount}</td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </motion.div>
         )}
       </div>

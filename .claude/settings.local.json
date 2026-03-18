@@ -11,7 +11,8 @@
       "Bash(npx tailwindcss:*)",
       "Bash(./node_modules/.bin/tailwindcss init:*)",
       "Bash(node_modules/.bin/tailwindcss.cmd init:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(ls -la /c/priv/fpl-tool/*.*)"
     ]
   }
 }

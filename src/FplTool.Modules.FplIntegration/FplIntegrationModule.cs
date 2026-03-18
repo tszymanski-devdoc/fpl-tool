@@ -21,7 +21,11 @@ public static class FplIntegrationModule
         services.AddHttpClient<FplHttpClient>(client =>
         {
             client.BaseAddress = new Uri(options.BaseUrl);
-            client.DefaultRequestHeaders.Add("User-Agent", "FplTool/1.0 (contact@fpltool.app)");
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36");
+            client.DefaultRequestHeaders.Add("Accept", "application/json, text/plain, */*");
+            client.DefaultRequestHeaders.Add("Accept-Language", "en-GB,en;q=0.9");
+            client.DefaultRequestHeaders.Add("Referer", "https://fantasy.premierleague.com/");
+            client.DefaultRequestHeaders.Add("Origin", "https://fantasy.premierleague.com");
             client.Timeout = TimeSpan.FromSeconds(30);
         })
         .AddStandardResilienceHandler(resilienceOptions =>

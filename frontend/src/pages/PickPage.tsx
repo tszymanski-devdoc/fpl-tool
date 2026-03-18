@@ -17,7 +17,9 @@ const POSITIONS = [
   { label: 'FWD', value: 4 },
 ]
 
-const PAGE_SIZE = 20
+const PAGE_SIZE = 24
+// Max columns across breakpoints (3 / 4 / 6) — LCM = 12, PAGE_SIZE is a multiple
+const MAX_COLS = 6
 
 export function PickPage() {
   const [selectedPlayerId, setSelectedPlayerId] = useState<number | null>(null)
@@ -226,7 +228,7 @@ export function PickPage() {
         ) : (
           <div className="flex flex-wrap -mx-1">
             {data.players.map((p: PlayerSummary) => (
-              <div key={p.fplPlayerId} className="px-1 mb-2 w-1/3 sm:w-1/4 md:w-1/5 lg:w-1/6">
+              <div key={p.fplPlayerId} className="px-1 mb-2 w-1/3 sm:w-1/4 lg:w-1/6">
                 <PlayerCard
                   player={p}
                   selected={effectiveSelectedPlayerId === p.fplPlayerId}
@@ -234,6 +236,10 @@ export function PickPage() {
                   disabled={isDeadlinePassed}
                 />
               </div>
+            ))}
+            {/* Invisible spacers to fill the last row so orphan cards don't float left */}
+            {Array.from({ length: MAX_COLS - 1 }).map((_, i) => (
+              <div key={`spacer-${i}`} className="px-1 w-1/3 sm:w-1/4 lg:w-1/6" aria-hidden="true" />
             ))}
           </div>
         )}

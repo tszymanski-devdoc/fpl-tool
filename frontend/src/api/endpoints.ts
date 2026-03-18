@@ -26,6 +26,7 @@ export interface PlayerSummary {
   positionName: string  // "GK" | "DEF" | "MID" | "FWD"
   totalPoints: number
   nowCost: number
+  photoCode?: string
 }
 
 export interface AllPlayers {

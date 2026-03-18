@@ -11,7 +11,8 @@ public sealed record PlayerSummaryDto(
     int Position,
     string PositionName,
     int TotalPoints,
-    int NowCost
+    int NowCost,
+    string PhotoCode
 );
 
 public sealed record AllPlayersDto(

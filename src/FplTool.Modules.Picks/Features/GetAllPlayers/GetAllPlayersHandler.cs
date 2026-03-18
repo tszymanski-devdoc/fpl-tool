@@ -48,7 +48,8 @@ internal sealed class GetAllPlayersHandler : IRequestHandler<GetAllPlayersQuery,
                     p.ElementType,
                     positionName,
                     p.TotalPoints,
-                    p.NowCost
+                    p.NowCost,
+                    p.Photo.Replace(".jpg", "")
                 );
             });
 

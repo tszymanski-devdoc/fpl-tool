@@ -27,4 +27,7 @@ public sealed class PlayerDto
 
     [JsonPropertyName("total_points")]
     public int TotalPoints { get; init; }
+
+    [JsonPropertyName("photo")]
+    public string Photo { get; init; } = string.Empty;
 }

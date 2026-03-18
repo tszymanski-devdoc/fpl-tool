@@ -16,6 +16,15 @@ interface Props {
   disabled?: boolean
 }
 
+const POSITION_BG: Record<number, string> = {
+  1: 'bg-amber-500/20',
+  2: 'bg-blue-500/20',
+  3: 'bg-green-500/20',
+  4: 'bg-red-500/20',
+}
+
+const FPL_PHOTO_BASE = 'https://resources.premierleague.com/premierleague/photos/players/110x140'
+
 export function PlayerCard({ player, selected, onSelect, disabled }: Props) {
   const initials = player.webName
     .split(' ')
@@ -23,6 +32,10 @@ export function PlayerCard({ player, selected, onSelect, disabled }: Props) {
     .join('')
     .slice(0, 2)
     .toUpperCase()
+
+  const photoUrl = player.photoCode
+    ? `${FPL_PHOTO_BASE}/p${player.photoCode}.png`
+    : null
 
   return (
     <motion.button
@@ -42,11 +55,32 @@ export function PlayerCard({ player, selected, onSelect, disabled }: Props) {
       {/* Avatar */}
       <div
         className={[
-          'w-10 h-10 rounded-full flex items-center justify-center font-display font-bold text-base',
-          selected ? 'bg-green text-pitch' : 'bg-card-hover text-muted',
+          'w-14 h-14 rounded-full overflow-hidden flex items-center justify-center font-display font-bold text-base',
+          selected ? 'bg-green/30' : (POSITION_BG[player.position] ?? 'bg-card-hover'),
         ].join(' ')}
       >
-        {initials}
+        {photoUrl ? (
+          <img
+            src={photoUrl}
+            alt={player.webName}
+            className="w-full h-full object-cover object-top"
+            style={{
+              filter: 'saturate(2.5) contrast(1.4) brightness(1.05) drop-shadow(2px 4px 0 rgba(0,0,0,0.8))',
+            }}
+            onError={(e) => {
+              const target = e.currentTarget
+              target.style.display = 'none'
+              const fallback = target.nextElementSibling as HTMLElement | null
+              if (fallback) fallback.style.display = 'flex'
+            }}
+          />
+        ) : null}
+        <span
+          className={selected ? 'text-white' : 'text-muted'}
+          style={{ display: photoUrl ? 'none' : 'flex' }}
+        >
+          {initials}
+        </span>
       </div>
 
       {/* Name */}

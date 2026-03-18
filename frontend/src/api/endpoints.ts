@@ -34,6 +34,10 @@ export interface AllPlayers {
   gameweekName: string
   deadline: string  // ISO datetime
   players: PlayerSummary[]
+  totalCount: number
+  page: number
+  pageSize: number
+  totalPages: number
 }
 
 export interface FplProfile {
@@ -90,7 +94,7 @@ export const patchMe = (data: { displayName?: string; fplManagerId?: number }) =
 
 // ── Players ────────────────────────────────────────────────────────────────
 
-export const getPlayers = (params?: { position?: number; sortBy?: string }) =>
+export const getPlayers = (params?: { position?: number; sortBy?: string; search?: string; page?: number; pageSize?: number }) =>
   apiClient.get<AllPlayers>('/api/v1/players', { params }).then((r) => r.data)
 
 export const getFplProfile = (managerId: number) =>

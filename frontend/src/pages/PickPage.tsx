@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { getPlayers, getCurrentPick, postPick } from '../api/endpoints'
@@ -17,18 +17,40 @@ const POSITIONS = [
   { label: 'FWD', value: 4 },
 ]
 
+const PAGE_SIZE = 20
+
 export function PickPage() {
   const [selectedPlayerId, setSelectedPlayerId] = useState<number | null>(null)
   const [saved, setSaved] = useState(false)
+  const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
   const [posFilter, setPosFilter] = useState<number | null>(null)
   const [sortBy, setSortBy] = useState<SortBy>('totalPoints')
+  const [page, setPage] = useState(1)
   const queryClient = useQueryClient()
 
+  // Debounce search input 300ms
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setSearch(searchInput)
+      setPage(1)
+    }, 300)
+    return () => clearTimeout(t)
+  }, [searchInput])
+
+  const queryParams = {
+    position: posFilter ?? undefined,
+    sortBy,
+    search: search || undefined,
+    page,
+    pageSize: PAGE_SIZE,
+  }
+
   const { data, isLoading, error } = useQuery({
-    queryKey: ['allPlayers'],
-    queryFn: () => getPlayers(),
+    queryKey: ['allPlayers', queryParams],
+    queryFn: () => getPlayers(queryParams),
     staleTime: 5 * 60 * 1000,
+    placeholderData: (prev) => prev,
   })
 
   const { data: currentPick } = useQuery({
@@ -50,7 +72,17 @@ export function PickPage() {
 
   const isDeadlinePassed = data ? new Date(data.deadline) < new Date() : false
 
-  if (isLoading) {
+  const handlePosFilter = (value: number | null) => {
+    setPosFilter(value)
+    setPage(1)
+  }
+
+  const handleSortBy = (value: SortBy) => {
+    setSortBy(value)
+    setPage(1)
+  }
+
+  if (isLoading && !data) {
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-64">
@@ -74,22 +106,7 @@ export function PickPage() {
     )
   }
 
-  // Client-side filter + sort
-  let displayed = data.players
-  if (posFilter !== null) displayed = displayed.filter((p) => p.position === posFilter)
-  if (search.trim()) {
-    const q = search.toLowerCase()
-    displayed = displayed.filter(
-      (p) =>
-        p.webName.toLowerCase().includes(q) ||
-        p.firstName.toLowerCase().includes(q) ||
-        p.lastName.toLowerCase().includes(q)
-    )
-  }
-  if (sortBy === 'name') displayed = [...displayed].sort((a, b) => a.webName.localeCompare(b.webName))
-  else if (sortBy === 'position') displayed = [...displayed].sort((a, b) => a.position - b.position || b.totalPoints - a.totalPoints)
-  else displayed = [...displayed].sort((a, b) => b.totalPoints - a.totalPoints)
-
+  // Find selected player in current page, or fall back to name only
   const selectedPlayer = data.players.find((p) => p.fplPlayerId === effectiveSelectedPlayerId)
   const hasChanged = effectiveSelectedPlayerId !== (currentPick?.fplPlayerId ?? null)
 
@@ -121,6 +138,11 @@ export function PickPage() {
                   {selectedPlayer.webName}
                   <span className="text-muted text-base font-normal ml-2">{selectedPlayer.teamShortName}</span>
                 </>
+              ) : currentPick && !selectedPlayer ? (
+                <>
+                  {currentPick.playerWebName}
+                  <span className="text-muted text-base font-normal ml-2">(current page)</span>
+                </>
               ) : (
                 <span className="text-muted">None selected</span>
               )}
@@ -149,7 +171,7 @@ export function PickPage() {
             {POSITIONS.map(({ label, value }) => (
               <button
                 key={label}
-                onClick={() => setPosFilter(value)}
+                onClick={() => handlePosFilter(value)}
                 className={[
                   'px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-colors',
                   posFilter === value
@@ -167,7 +189,7 @@ export function PickPage() {
             {(['totalPoints', 'name', 'position'] as SortBy[]).map((s) => (
               <button
                 key={s}
-                onClick={() => setSortBy(s)}
+                onClick={() => handleSortBy(s)}
                 className={[
                   'px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-colors',
                   sortBy === s
@@ -183,19 +205,27 @@ export function PickPage() {
           {/* Search */}
           <input
             type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Search players…"
             className="flex-1 bg-pitch border border-border rounded-lg px-3 py-1.5 text-white placeholder:text-muted text-sm focus:outline-none focus:border-green transition-colors"
           />
         </div>
 
         {/* Player grid */}
-        {displayed.length === 0 ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+              className="w-6 h-6 rounded-full border-2 border-green border-t-transparent"
+            />
+          </div>
+        ) : data.players.length === 0 ? (
           <p className="text-muted text-sm text-center py-8">No players match your search.</p>
         ) : (
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2">
-            {displayed.map((p: PlayerSummary) => (
+            {data.players.map((p: PlayerSummary) => (
               <PlayerCard
                 key={p.fplPlayerId}
                 player={p}
@@ -204,6 +234,30 @@ export function PickPage() {
                 disabled={isDeadlinePassed}
               />
             ))}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {data.totalPages > 1 && (
+          <div className="flex items-center justify-between pt-1">
+            <button
+              onClick={() => setPage((p) => p - 1)}
+              disabled={page <= 1}
+              className="px-4 py-1.5 rounded-lg text-xs font-mono font-medium bg-card border border-border text-muted hover:border-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            >
+              ← Prev
+            </button>
+            <span className="text-muted text-xs font-mono">
+              {page} / {data.totalPages}
+              <span className="text-white/30 ml-2">({data.totalCount} players)</span>
+            </span>
+            <button
+              onClick={() => setPage((p) => p + 1)}
+              disabled={page >= data.totalPages}
+              className="px-4 py-1.5 rounded-lg text-xs font-mono font-medium bg-card border border-border text-muted hover:border-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            >
+              Next →
+            </button>
           </div>
         )}
       </div>

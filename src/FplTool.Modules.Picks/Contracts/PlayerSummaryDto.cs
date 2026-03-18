@@ -19,5 +19,9 @@ public sealed record AllPlayersDto(
     int GameweekId,
     string GameweekName,
     DateTime Deadline,
-    IReadOnlyList<PlayerSummaryDto> Players
+    IReadOnlyList<PlayerSummaryDto> Players,
+    int TotalCount,
+    int Page,
+    int PageSize,
+    int TotalPages
 );

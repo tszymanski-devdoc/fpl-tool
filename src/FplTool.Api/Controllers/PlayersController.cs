@@ -18,9 +18,12 @@ public sealed class PlayersController : ControllerBase
     public async Task<IActionResult> GetAllPlayers(
         [FromQuery] int? position,
         [FromQuery] string? sortBy,
-        CancellationToken ct)
+        [FromQuery] string? search,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken ct = default)
     {
-        var result = await _mediator.Send(new GetAllPlayersQuery(position, sortBy), ct);
+        var result = await _mediator.Send(new GetAllPlayersQuery(position, sortBy, search, page, pageSize), ct);
 
         if (result.IsFailure)
             return BadRequest(new { error = result.Error.Code, message = result.Error.Message });

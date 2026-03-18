@@ -16,11 +16,11 @@ interface Props {
   disabled?: boolean
 }
 
-const POSITION_BG: Record<number, string> = {
-  1: 'bg-amber-500/20',
-  2: 'bg-blue-500/20',
-  3: 'bg-green-500/20',
-  4: 'bg-red-500/20',
+const POSITION_GRADIENT: Record<number, string> = {
+  1: 'from-amber-900/60 to-amber-600/20',
+  2: 'from-blue-900/60 to-blue-600/20',
+  3: 'from-emerald-900/60 to-emerald-600/20',
+  4: 'from-red-900/60 to-red-600/20',
 }
 
 const FPL_PHOTO_BASE = 'https://resources.premierleague.com/premierleague/photos/players/110x140'
@@ -37,13 +37,15 @@ export function PlayerCard({ player, selected, onSelect, disabled }: Props) {
     ? `${FPL_PHOTO_BASE}/p${player.photoCode}.png`
     : null
 
+  const gradient = POSITION_GRADIENT[player.position] ?? 'from-zinc-800 to-zinc-700/20'
+
   return (
     <motion.button
       onClick={() => !disabled && onSelect(player)}
       whileHover={disabled ? {} : { y: -4, scale: 1.02 }}
       whileTap={disabled ? {} : { scale: 0.97 }}
       className={[
-        'relative flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-colors text-left w-full',
+        'relative flex flex-col items-center rounded-xl border transition-colors text-left w-full overflow-hidden',
         selected
           ? 'bg-card-hover border-green glow-green'
           : 'bg-card border-border hover:border-muted',
@@ -52,36 +54,32 @@ export function PlayerCard({ player, selected, onSelect, disabled }: Props) {
     >
       {selected && <CaptainBadge />}
 
-      {/* Avatar */}
-      <div
-        className={[
-          'w-14 h-14 rounded-full overflow-hidden flex items-center justify-center font-display font-bold text-base',
-          selected ? 'bg-green/30' : (POSITION_BG[player.position] ?? 'bg-card-hover'),
-        ].join(' ')}
-      >
+      {/* Player photo banner */}
+      <div className={`w-full h-24 bg-gradient-to-b ${gradient} flex items-end justify-center relative`}>
         {photoUrl ? (
           <img
             src={photoUrl}
             alt={player.webName}
-            className="w-full h-full object-cover object-top"
-            style={{
-              filter: 'saturate(2.5) contrast(1.4) brightness(1.05) drop-shadow(2px 4px 0 rgba(0,0,0,0.8))',
-            }}
+            className="h-full w-auto object-contain object-bottom"
+            style={{ filter: 'drop-shadow(0 -2px 8px rgba(0,0,0,0.6))' }}
             onError={(e) => {
               const target = e.currentTarget
               target.style.display = 'none'
               const fallback = target.nextElementSibling as HTMLElement | null
-              if (fallback) fallback.style.display = 'flex'
+              if (fallback) fallback.style.removeProperty('display')
             }}
           />
         ) : null}
         <span
-          className={selected ? 'text-white' : 'text-muted'}
-          style={{ display: photoUrl ? 'none' : 'flex' }}
+          className="font-display font-bold text-xl text-muted absolute inset-0 flex items-center justify-center"
+          style={{ display: photoUrl ? 'none' : undefined }}
         >
           {initials}
         </span>
       </div>
+
+      {/* Text content */}
+      <div className="flex flex-col items-center gap-1 px-3 pb-3 w-full">
 
       {/* Name */}
       <span className={`font-display font-bold text-sm leading-tight text-center ${selected ? 'text-white' : 'text-white/80'}`}>
@@ -96,6 +94,7 @@ export function PlayerCard({ player, selected, onSelect, disabled }: Props) {
 
       {/* Points */}
       <span className="font-mono text-xs text-white/50">{player.totalPoints}pts</span>
+      </div>
     </motion.button>
   )
 }

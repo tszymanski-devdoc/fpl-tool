@@ -15,7 +15,7 @@ public static class AuthModule
         services.AddDbContext<AuthDbContext>(options =>
             options.UseMySql(
                 connectionString,
-                ServerVersion.AutoDetect(connectionString),
+                new MySqlServerVersion(new Version(8, 0)),
                 mysql => mysql.MigrationsAssembly(typeof(AuthModule).Assembly.GetName().Name)
             ));
 

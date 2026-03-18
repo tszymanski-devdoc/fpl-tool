@@ -15,7 +15,7 @@ public static class PicksModule
         services.AddDbContext<PicksDbContext>(options =>
             options.UseMySql(
                 connectionString,
-                ServerVersion.AutoDetect(connectionString),
+                new MySqlServerVersion(new Version(8, 0)),
                 mysql => mysql.MigrationsAssembly(typeof(PicksModule).Assembly.GetName().Name)
             ));
 

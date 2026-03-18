@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
@@ -29,14 +29,10 @@ export function PickPage() {
     enabled: !!squad?.gameweekId,
   })
 
-  useEffect(() => {
-    if (currentPick && selectedPlayerId === null) {
-      setSelectedPlayerId(currentPick.fplPlayerId)
-    }
-  }, [currentPick])
+  const effectiveSelectedPlayerId = selectedPlayerId ?? currentPick?.fplPlayerId ?? null
 
   const { mutate: submitPick, isPending } = useMutation({
-    mutationFn: () => postPick(squad!.gameweekId, selectedPlayerId!),
+    mutationFn: () => postPick(squad!.gameweekId, effectiveSelectedPlayerId!),
     onSuccess: () => {
       setSaved(true)
       queryClient.invalidateQueries({ queryKey: ['currentPick'] })
@@ -91,8 +87,8 @@ export function PickPage() {
     players: squad.players.filter((p) => p.elementType === pos),
   })).filter((g) => g.players.length > 0)
 
-  const selectedPlayer = squad.players.find((p) => p.fplPlayerId === selectedPlayerId)
-  const hasChanged = selectedPlayerId !== (currentPick?.fplPlayerId ?? null)
+  const selectedPlayer = squad.players.find((p) => p.fplPlayerId === effectiveSelectedPlayerId)
+  const hasChanged = effectiveSelectedPlayerId !== (currentPick?.fplPlayerId ?? null)
 
   return (
     <Layout>
@@ -122,12 +118,12 @@ export function PickPage() {
           </div>
           <button
             onClick={() => submitPick()}
-            disabled={!selectedPlayerId || isDeadlinePassed || isPending || !hasChanged}
+            disabled={!effectiveSelectedPlayerId || isDeadlinePassed || isPending || !hasChanged}
             className={[
               'px-6 py-2.5 rounded-lg font-display font-bold text-sm tracking-wide transition-all',
               saved
                 ? 'bg-green text-pitch'
-                : selectedPlayerId && !isDeadlinePassed && hasChanged
+                : effectiveSelectedPlayerId && !isDeadlinePassed && hasChanged
                 ? 'bg-green text-pitch hover:bg-green-dim glow-green'
                 : 'bg-card-hover text-muted cursor-not-allowed',
             ].join(' ')}
@@ -152,7 +148,7 @@ export function PickPage() {
                   <PlayerCard
                     key={p.fplPlayerId}
                     player={p}
-                    selected={selectedPlayerId === p.fplPlayerId}
+                    selected={effectiveSelectedPlayerId === p.fplPlayerId}
                     onSelect={(pl) => setSelectedPlayerId(pl.fplPlayerId)}
                     disabled={isDeadlinePassed}
                   />

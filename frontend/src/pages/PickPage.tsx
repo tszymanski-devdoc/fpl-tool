@@ -224,15 +224,16 @@ export function PickPage() {
         ) : data.players.length === 0 ? (
           <p className="text-muted text-sm text-center py-8">No players match your search.</p>
         ) : (
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2">
+          <div className="flex flex-wrap -mx-1">
             {data.players.map((p: PlayerSummary) => (
-              <PlayerCard
-                key={p.fplPlayerId}
-                player={p}
-                selected={effectiveSelectedPlayerId === p.fplPlayerId}
-                onSelect={(pl) => setSelectedPlayerId(pl.fplPlayerId)}
-                disabled={isDeadlinePassed}
-              />
+              <div key={p.fplPlayerId} className="px-1 mb-2 w-1/3 sm:w-1/4 md:w-1/5 lg:w-1/6">
+                <PlayerCard
+                  player={p}
+                  selected={effectiveSelectedPlayerId === p.fplPlayerId}
+                  onSelect={(pl) => setSelectedPlayerId(pl.fplPlayerId)}
+                  disabled={isDeadlinePassed}
+                />
+              </div>
             ))}
           </div>
         )}

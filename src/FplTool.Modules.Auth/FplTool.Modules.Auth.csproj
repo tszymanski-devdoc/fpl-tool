@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FplTool.SharedKernel\FplTool.SharedKernel.csproj" />
+    <ProjectReference Include="..\FplTool.Modules.FplIntegration\FplTool.Modules.FplIntegration.csproj" />
   </ItemGroup>
 
   <ItemGroup>

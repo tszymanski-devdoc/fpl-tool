@@ -14,18 +14,30 @@ export interface AuthResponse {
   user: User
 }
 
-export interface SquadPlayer {
+export interface PlayerSummary {
   fplPlayerId: number
   webName: string
+  firstName: string
+  lastName: string
   teamId: number
-  elementType: number  // 1=GK 2=DEF 3=MID 4=FWD
+  teamName: string
+  teamShortName: string
+  position: number      // 1=GK 2=DEF 3=MID 4=FWD
+  positionName: string  // "GK" | "DEF" | "MID" | "FWD"
+  totalPoints: number
+  nowCost: number
 }
 
-export interface Squad {
+export interface AllPlayers {
   gameweekId: number
   gameweekName: string
   deadline: string  // ISO datetime
-  players: SquadPlayer[]
+  players: PlayerSummary[]
+}
+
+export interface FplProfile {
+  teamName: string
+  playerName: string
 }
 
 export interface CaptainPick {
@@ -75,10 +87,15 @@ export const getMe = () =>
 export const patchMe = (data: { displayName?: string; fplManagerId?: number }) =>
   apiClient.patch<User>('/api/v1/users/me', data).then((r) => r.data)
 
-// ── Picks ──────────────────────────────────────────────────────────────────
+// ── Players ────────────────────────────────────────────────────────────────
 
-export const getSquad = () =>
-  apiClient.get<Squad>('/api/v1/picks/squad').then((r) => r.data)
+export const getPlayers = (params?: { position?: number; sortBy?: string }) =>
+  apiClient.get<AllPlayers>('/api/v1/players', { params }).then((r) => r.data)
+
+export const getFplProfile = (managerId: number) =>
+  apiClient.get<FplProfile>('/api/v1/users/fpl-profile', { params: { managerId } }).then((r) => r.data)
+
+// ── Picks ──────────────────────────────────────────────────────────────────
 
 export const postPick = (gameweekId: number, fplPlayerId: number) =>
   apiClient.post<CaptainPick>('/api/v1/picks', { gameweekId, fplPlayerId }).then((r) => r.data)

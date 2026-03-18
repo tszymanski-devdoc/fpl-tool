@@ -1,38 +1,46 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
-import { useAuthStore } from '../stores/authStore'
-import { getSquad, getCurrentPick, postPick } from '../api/endpoints'
-import type { SquadPlayer } from '../api/endpoints'
+import { getPlayers, getCurrentPick, postPick } from '../api/endpoints'
+import type { PlayerSummary } from '../api/endpoints'
 import { DeadlineCountdown } from '../components/DeadlineCountdown'
 import { PlayerCard } from '../components/PlayerCard'
 import { Layout } from '../components/Layout'
 
-const POSITION_ORDER = [1, 4, 3, 2]
+type SortBy = 'totalPoints' | 'name' | 'position'
+
+const POSITIONS = [
+  { label: 'All', value: null },
+  { label: 'GK', value: 1 },
+  { label: 'DEF', value: 2 },
+  { label: 'MID', value: 3 },
+  { label: 'FWD', value: 4 },
+]
 
 export function PickPage() {
-  const user = useAuthStore((s) => s.user)
   const [selectedPlayerId, setSelectedPlayerId] = useState<number | null>(null)
   const [saved, setSaved] = useState(false)
+  const [search, setSearch] = useState('')
+  const [posFilter, setPosFilter] = useState<number | null>(null)
+  const [sortBy, setSortBy] = useState<SortBy>('totalPoints')
   const queryClient = useQueryClient()
 
-  const { data: squad, isLoading: squadLoading, error: squadError } = useQuery({
-    queryKey: ['squad'],
-    queryFn: getSquad,
-    enabled: !!user?.fplManagerId,
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['allPlayers'],
+    queryFn: () => getPlayers(),
+    staleTime: 5 * 60 * 1000,
   })
 
   const { data: currentPick } = useQuery({
-    queryKey: ['currentPick', squad?.gameweekId],
-    queryFn: () => getCurrentPick(squad!.gameweekId),
-    enabled: !!squad?.gameweekId,
+    queryKey: ['currentPick', data?.gameweekId],
+    queryFn: () => getCurrentPick(data!.gameweekId),
+    enabled: !!data?.gameweekId,
   })
 
   const effectiveSelectedPlayerId = selectedPlayerId ?? currentPick?.fplPlayerId ?? null
 
   const { mutate: submitPick, isPending } = useMutation({
-    mutationFn: () => postPick(squad!.gameweekId, effectiveSelectedPlayerId!),
+    mutationFn: () => postPick(data!.gameweekId, effectiveSelectedPlayerId!),
     onSuccess: () => {
       setSaved(true)
       queryClient.invalidateQueries({ queryKey: ['currentPick'] })
@@ -40,24 +48,9 @@ export function PickPage() {
     },
   })
 
-  const isDeadlinePassed = squad ? new Date(squad.deadline) < new Date() : false
+  const isDeadlinePassed = data ? new Date(data.deadline) < new Date() : false
 
-  if (!user?.fplManagerId) {
-    return (
-      <Layout>
-        <div className="flex flex-col items-center justify-center min-h-64 text-center gap-4">
-          <div className="text-5xl">⚡</div>
-          <h2 className="font-display font-bold text-2xl text-white">Set your FPL Manager ID first</h2>
-          <p className="text-muted">We need your FPL Manager ID to fetch your squad.</p>
-          <Link to="/profile" className="px-5 py-2 rounded-lg bg-green text-pitch font-bold text-sm">
-            Go to Profile →
-          </Link>
-        </div>
-      </Layout>
-    )
-  }
-
-  if (squadLoading) {
+  if (isLoading) {
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-64">
@@ -71,35 +64,45 @@ export function PickPage() {
     )
   }
 
-  if (squadError || !squad) {
+  if (error || !data) {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center min-h-64 text-center gap-3">
-          <p className="text-red font-medium">Failed to load your squad. Check your FPL Manager ID.</p>
-          <Link to="/profile" className="text-green text-sm hover:underline">Edit profile →</Link>
+          <p className="text-red font-medium">Failed to load players. Please try again.</p>
         </div>
       </Layout>
     )
   }
 
-  const playersByPosition = POSITION_ORDER.map((pos) => ({
-    pos,
-    players: squad.players.filter((p) => p.elementType === pos),
-  })).filter((g) => g.players.length > 0)
+  // Client-side filter + sort
+  let displayed = data.players
+  if (posFilter !== null) displayed = displayed.filter((p) => p.position === posFilter)
+  if (search.trim()) {
+    const q = search.toLowerCase()
+    displayed = displayed.filter(
+      (p) =>
+        p.webName.toLowerCase().includes(q) ||
+        p.firstName.toLowerCase().includes(q) ||
+        p.lastName.toLowerCase().includes(q)
+    )
+  }
+  if (sortBy === 'name') displayed = [...displayed].sort((a, b) => a.webName.localeCompare(b.webName))
+  else if (sortBy === 'position') displayed = [...displayed].sort((a, b) => a.position - b.position || b.totalPoints - a.totalPoints)
+  else displayed = [...displayed].sort((a, b) => b.totalPoints - a.totalPoints)
 
-  const selectedPlayer = squad.players.find((p) => p.fplPlayerId === effectiveSelectedPlayerId)
+  const selectedPlayer = data.players.find((p) => p.fplPlayerId === effectiveSelectedPlayerId)
   const hasChanged = effectiveSelectedPlayerId !== (currentPick?.fplPlayerId ?? null)
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="space-y-5">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <p className="text-muted text-xs uppercase tracking-widest">Captain Pick</p>
-            <h1 className="font-display font-extrabold text-4xl text-white">{squad.gameweekName}</h1>
+            <h1 className="font-display font-extrabold text-4xl text-white">{data.gameweekName}</h1>
           </div>
-          <DeadlineCountdown deadline={squad.deadline} />
+          <DeadlineCountdown deadline={data.deadline} />
         </div>
 
         {isDeadlinePassed && (
@@ -113,7 +116,14 @@ export function PickPage() {
           <div>
             <span className="text-muted text-xs uppercase tracking-widest block mb-1">Selected Captain</span>
             <span className="font-display font-bold text-2xl text-white">
-              {selectedPlayer ? selectedPlayer.webName : <span className="text-muted">None selected</span>}
+              {selectedPlayer ? (
+                <>
+                  {selectedPlayer.webName}
+                  <span className="text-muted text-base font-normal ml-2">{selectedPlayer.teamShortName}</span>
+                </>
+              ) : (
+                <span className="text-muted">None selected</span>
+              )}
             </span>
           </div>
           <button
@@ -132,31 +142,70 @@ export function PickPage() {
           </button>
         </div>
 
-        {/* Squad grid by position */}
-        {playersByPosition.map(({ pos, players }, i) => {
-          const posLabel = { 1: 'Goalkeeper', 2: 'Defenders', 3: 'Midfielders', 4: 'Forwards' }[pos]
-          return (
-            <motion.div
-              key={pos}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.07 }}
-            >
-              <h3 className="font-display font-bold text-sm text-muted uppercase tracking-widest mb-2">{posLabel}</h3>
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-                {players.map((p: SquadPlayer) => (
-                  <PlayerCard
-                    key={p.fplPlayerId}
-                    player={p}
-                    selected={effectiveSelectedPlayerId === p.fplPlayerId}
-                    onSelect={(pl) => setSelectedPlayerId(pl.fplPlayerId)}
-                    disabled={isDeadlinePassed}
-                  />
-                ))}
-              </div>
-            </motion.div>
-          )
-        })}
+        {/* Controls */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          {/* Position filter */}
+          <div className="flex gap-1">
+            {POSITIONS.map(({ label, value }) => (
+              <button
+                key={label}
+                onClick={() => setPosFilter(value)}
+                className={[
+                  'px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-colors',
+                  posFilter === value
+                    ? 'bg-green text-pitch'
+                    : 'bg-card border border-border text-muted hover:border-muted',
+                ].join(' ')}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* Sort */}
+          <div className="flex gap-1">
+            {(['totalPoints', 'name', 'position'] as SortBy[]).map((s) => (
+              <button
+                key={s}
+                onClick={() => setSortBy(s)}
+                className={[
+                  'px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-colors',
+                  sortBy === s
+                    ? 'bg-card-hover border border-green text-green'
+                    : 'bg-card border border-border text-muted hover:border-muted',
+                ].join(' ')}
+              >
+                {s === 'totalPoints' ? 'Points' : s === 'name' ? 'Name' : 'Position'}
+              </button>
+            ))}
+          </div>
+
+          {/* Search */}
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search players…"
+            className="flex-1 bg-pitch border border-border rounded-lg px-3 py-1.5 text-white placeholder:text-muted text-sm focus:outline-none focus:border-green transition-colors"
+          />
+        </div>
+
+        {/* Player grid */}
+        {displayed.length === 0 ? (
+          <p className="text-muted text-sm text-center py-8">No players match your search.</p>
+        ) : (
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2">
+            {displayed.map((p: PlayerSummary) => (
+              <PlayerCard
+                key={p.fplPlayerId}
+                player={p}
+                selected={effectiveSelectedPlayerId === p.fplPlayerId}
+                onSelect={(pl) => setSelectedPlayerId(pl.fplPlayerId)}
+                disabled={isDeadlinePassed}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </Layout>
   )

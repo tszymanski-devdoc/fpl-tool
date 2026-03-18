@@ -1,3 +1,4 @@
+using FplTool.Modules.Auth.Features.GetFplProfile;
 using FplTool.Modules.Auth.Features.GetProfile;
 using FplTool.Modules.Auth.Features.UpdateProfile;
 using FplTool.Modules.Auth.Features.VerifyGoogleToken;
@@ -47,6 +48,17 @@ public sealed class AuthController : ControllerBase
         CancellationToken ct)
     {
         var result = await _mediator.Send(new UpdateProfileCommand(currentUser.UserId, request.DisplayName, request.FplManagerId), ct);
+
+        if (result.IsFailure)
+            return NotFound(new { error = result.Error.Code, message = result.Error.Message });
+
+        return Ok(result.Value);
+    }
+
+    [HttpGet("users/fpl-profile")]
+    public async Task<IActionResult> GetFplProfile([FromQuery] int managerId, CancellationToken ct)
+    {
+        var result = await _mediator.Send(new GetFplProfileQuery(managerId), ct);
 
         if (result.IsFailure)
             return NotFound(new { error = result.Error.Code, message = result.Error.Message });

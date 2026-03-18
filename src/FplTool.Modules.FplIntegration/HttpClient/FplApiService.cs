@@ -44,4 +44,13 @@ internal sealed class FplApiService : IFplApiService
         return await JsonSerializer.DeserializeAsync<LiveEventDto>(content, JsonOptions, ct)
                ?? throw new InvalidOperationException("Failed to deserialize live event response.");
     }
+
+    public async Task<ManagerEntryDto> GetManagerEntryAsync(int fplManagerId, CancellationToken ct = default)
+    {
+        var response = await _client.Client.GetAsync($"entry/{fplManagerId}/", ct);
+        response.EnsureSuccessStatusCode();
+        var content = await response.Content.ReadAsStreamAsync(ct);
+        return await JsonSerializer.DeserializeAsync<ManagerEntryDto>(content, JsonOptions, ct)
+               ?? throw new InvalidOperationException("Failed to deserialize manager entry response.");
+    }
 }

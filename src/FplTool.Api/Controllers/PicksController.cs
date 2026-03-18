@@ -1,7 +1,5 @@
-using FplTool.Modules.Auth.Features.GetProfile;
 using FplTool.Modules.Picks.Features.GetCurrentPick;
 using FplTool.Modules.Picks.Features.GetMyPicks;
-using FplTool.Modules.Picks.Features.GetSquad;
 using FplTool.Modules.Picks.Features.SubmitPick;
 using FplTool.SharedKernel.Interfaces;
 using FplTool.SharedKernel.Results;
@@ -19,27 +17,6 @@ public sealed class PicksController : ControllerBase
     private readonly IMediator _mediator;
 
     public PicksController(IMediator mediator) => _mediator = mediator;
-
-    [HttpGet("squad")]
-    public async Task<IActionResult> GetSquad(
-        [FromServices] ICurrentUserContext currentUser,
-        CancellationToken ct)
-    {
-        // Resolve FplManagerId via user profile
-        var profileResult = await _mediator.Send(new GetProfileQuery(currentUser.UserId), ct);
-        if (profileResult.IsFailure)
-            return NotFound(new { error = profileResult.Error.Code, message = profileResult.Error.Message });
-
-        if (profileResult.Value.FplManagerId is null)
-            return BadRequest(new { error = "FPL_MANAGER_NOT_SET", message = "Please set your FPL Manager ID in your profile first." });
-
-        var result = await _mediator.Send(new GetSquadByManagerQuery(profileResult.Value.FplManagerId.Value), ct);
-
-        if (result.IsFailure)
-            return BadRequest(new { error = result.Error.Code, message = result.Error.Message });
-
-        return Ok(result.Value);
-    }
 
     [HttpPost]
     public async Task<IActionResult> SubmitPick(

@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { useAuthStore } from '../stores/authStore'
-import { getSquad, getCurrentPick, getLeaderboard } from '../api/endpoints'
+import { getPlayers, getCurrentPick, getLeaderboard } from '../api/endpoints'
 import { DeadlineCountdown } from '../components/DeadlineCountdown'
 import { Layout } from '../components/Layout'
 
@@ -18,17 +18,17 @@ function StatCard({ label, value, accent = false }: { label: string; value: Reac
 export function DashboardPage() {
   const user = useAuthStore((s) => s.user)
 
-  const { data: squad } = useQuery({
-    queryKey: ['squad'],
-    queryFn: getSquad,
-    enabled: !!user?.fplManagerId,
+  const { data } = useQuery({
+    queryKey: ['allPlayers'],
+    queryFn: () => getPlayers(),
+    staleTime: 5 * 60 * 1000,
     retry: false,
   })
 
   const { data: currentPick } = useQuery({
-    queryKey: ['currentPick', squad?.gameweekId],
-    queryFn: () => getCurrentPick(squad!.gameweekId),
-    enabled: !!squad?.gameweekId,
+    queryKey: ['currentPick', data?.gameweekId],
+    queryFn: () => getCurrentPick(data!.gameweekId),
+    enabled: !!data?.gameweekId,
   })
 
   const { data: leaderboard } = useQuery({
@@ -39,7 +39,7 @@ export function DashboardPage() {
   const myRank = leaderboard?.findIndex((e) => e.userId === user?.id)
   const myEntry = myRank !== undefined && myRank >= 0 ? leaderboard![myRank] : null
   const top5 = leaderboard?.slice(0, 5) ?? []
-  const isDeadlinePassed = squad ? new Date(squad.deadline) < new Date() : false
+  const isDeadlinePassed = data ? new Date(data.deadline) < new Date() : false
 
   return (
     <Layout>
@@ -53,7 +53,7 @@ export function DashboardPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <p className="text-muted text-xs uppercase tracking-widest mb-1">
-                {squad ? squad.gameweekName : 'Current Gameweek'}
+                {data ? data.gameweekName : 'Current Gameweek'}
               </p>
               <h1 className="font-display font-extrabold text-5xl text-white leading-none">
                 {currentPick ? (
@@ -68,7 +68,7 @@ export function DashboardPage() {
             </div>
 
             <div className="flex flex-col items-start sm:items-end gap-3">
-              {squad && <DeadlineCountdown deadline={squad.deadline} />}
+              {data && <DeadlineCountdown deadline={data.deadline} />}
               {!isDeadlinePassed && (
                 <Link
                   to="/pick"
@@ -81,24 +81,11 @@ export function DashboardPage() {
           </div>
         </motion.div>
 
-        {/* Stats strip */}
-        {!user?.fplManagerId && (
-          <div className="rounded-xl border border-amber/30 bg-amber/5 p-4 flex items-center justify-between gap-4">
-            <div>
-              <p className="text-amber font-medium text-sm">Set your FPL Manager ID to get started</p>
-              <p className="text-muted text-xs mt-0.5">Required to fetch your squad for captain picks</p>
-            </div>
-            <Link to="/profile" className="shrink-0 px-4 py-2 rounded-lg border border-amber/40 text-amber text-sm font-medium hover:bg-amber/10 transition-colors">
-              Go to Profile →
-            </Link>
-          </div>
-        )}
-
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <StatCard label="Season Points" value={myEntry?.totalPoints ?? '—'} accent />
           <StatCard label="Leaderboard Rank" value={myRank !== undefined && myRank >= 0 ? `#${myRank + 1}` : '—'} />
           <StatCard label="Picks Made" value={myEntry?.picksCount ?? '—'} />
-          <StatCard label="GW" value={squad?.gameweekId ?? '—'} />
+          <StatCard label="GW" value={data?.gameweekId ?? '—'} />
         </div>
 
         {/* Mini leaderboard */}

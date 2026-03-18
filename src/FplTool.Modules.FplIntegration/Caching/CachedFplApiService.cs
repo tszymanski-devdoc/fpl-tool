@@ -39,4 +39,11 @@ internal sealed class CachedFplApiService : IFplApiService
             entry.SlidingExpiration = TimeSpan.FromMinutes(_options.LiveCacheMinutes);
             return await _inner.GetLiveEventAsync(gameweekId, ct);
         })!;
+
+    public Task<ManagerEntryDto> GetManagerEntryAsync(int fplManagerId, CancellationToken ct = default)
+        => _cache.GetOrCreateAsync(CacheKeys.ManagerEntry(fplManagerId), async entry =>
+        {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30);
+            return await _inner.GetManagerEntryAsync(fplManagerId, ct);
+        })!;
 }

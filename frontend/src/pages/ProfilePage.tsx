@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuthStore } from '../stores/authStore'
-import { patchMe } from '../api/endpoints'
+import { patchMe, getFplProfile } from '../api/endpoints'
 import { Layout } from '../components/Layout'
 
 export function ProfilePage() {
@@ -10,6 +10,7 @@ export function ProfilePage() {
   const [displayName, setDisplayName] = useState(user?.displayName ?? '')
   const [fplManagerId, setFplManagerId] = useState(user?.fplManagerId?.toString() ?? '')
   const [toast, setToast] = useState<string | null>(null)
+  const [autoFillLoading, setAutoFillLoading] = useState(false)
 
   const { mutate, isPending } = useMutation({
     mutationFn: () =>
@@ -27,6 +28,23 @@ export function ProfilePage() {
       setTimeout(() => setToast(null), 3000)
     },
   })
+
+  async function handleAutoFill() {
+    const id = Number(fplManagerId)
+    if (!id) return
+    setAutoFillLoading(true)
+    try {
+      const profile = await getFplProfile(id)
+      setDisplayName(profile.teamName)
+      setToast(`Team name filled: ${profile.teamName}`)
+      setTimeout(() => setToast(null), 3000)
+    } catch {
+      setToast('FPL Manager ID not found.')
+      setTimeout(() => setToast(null), 3000)
+    } finally {
+      setAutoFillLoading(false)
+    }
+  }
 
   return (
     <Layout>
@@ -61,17 +79,27 @@ export function ProfilePage() {
 
           <div>
             <label className="text-muted text-xs uppercase tracking-widest block mb-2">
-              FPL Manager ID
+              FPL Manager ID <span className="text-muted normal-case font-normal tracking-normal">(optional)</span>
             </label>
-            <input
-              type="number"
-              value={fplManagerId}
-              onChange={(e) => setFplManagerId(e.target.value)}
-              placeholder="e.g. 1234567"
-              className="w-full bg-pitch border border-border rounded-lg px-4 py-2.5 text-white placeholder:text-muted text-sm focus:outline-none focus:border-green transition-colors font-mono"
-            />
+            <div className="flex gap-2">
+              <input
+                type="number"
+                value={fplManagerId}
+                onChange={(e) => setFplManagerId(e.target.value)}
+                placeholder="e.g. 1234567"
+                className="flex-1 bg-pitch border border-border rounded-lg px-4 py-2.5 text-white placeholder:text-muted text-sm focus:outline-none focus:border-green transition-colors font-mono"
+              />
+              <button
+                type="button"
+                onClick={handleAutoFill}
+                disabled={!fplManagerId || autoFillLoading}
+                className="px-4 py-2.5 rounded-lg border border-border text-muted text-sm font-medium hover:border-green hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+              >
+                {autoFillLoading ? '…' : 'Auto-fill name'}
+              </button>
+            </div>
             <p className="text-muted text-xs mt-2">
-              Find this in the FPL app: <span className="text-white/60">Points → View gameweek history → check the URL</span>
+              Optional — auto-fills your team name from FPL
             </p>
           </div>
 
@@ -92,7 +120,7 @@ export function ProfilePage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               className={`fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-2.5 rounded-xl text-sm font-medium shadow-xl ${
-                toast.includes('Failed') ? 'bg-red text-white' : 'bg-green text-pitch'
+                toast.includes('Failed') || toast.includes('not found') ? 'bg-red text-white' : 'bg-green text-pitch'
               }`}
             >
               {toast}

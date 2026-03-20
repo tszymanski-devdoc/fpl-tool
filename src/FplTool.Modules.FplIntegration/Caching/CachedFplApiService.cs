@@ -46,4 +46,11 @@ internal sealed class CachedFplApiService : IFplApiService
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30);
             return await _inner.GetManagerEntryAsync(fplManagerId, ct);
         })!;
+
+    public Task<List<FixtureDto>> GetFixturesAsync(int gameweekId, CancellationToken ct = default)
+        => _cache.GetOrCreateAsync(CacheKeys.Fixtures(gameweekId), async entry =>
+        {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_options.BootstrapCacheMinutes);
+            return await _inner.GetFixturesAsync(gameweekId, ct);
+        })!;
 }

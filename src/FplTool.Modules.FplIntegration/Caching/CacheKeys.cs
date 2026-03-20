@@ -6,4 +6,5 @@ internal static class CacheKeys
     public static string LiveEvent(int gameweekId) => $"fpl:live:{gameweekId}";
     public static string ManagerPicks(int fplManagerId, int gameweekId) => $"fpl:picks:{fplManagerId}:{gameweekId}";
     public static string ManagerEntry(int fplManagerId) => $"fpl:entry:{fplManagerId}";
+    public static string Fixtures(int gameweekId) => $"fpl:fixtures:{gameweekId}";
 }

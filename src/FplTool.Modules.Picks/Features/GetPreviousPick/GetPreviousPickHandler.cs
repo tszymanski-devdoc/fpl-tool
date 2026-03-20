@@ -27,13 +27,13 @@ internal sealed class GetPreviousPickHandler : IRequestHandler<GetPreviousPickQu
     {
         var bootstrap = await _fplApiService.GetBootstrapStaticAsync(cancellationToken);
 
-        var currentGw = bootstrap.Events.FirstOrDefault(e => e.IsCurrent)
-                        ?? bootstrap.Events.FirstOrDefault(e => e.IsNext);
+        var upcomingGw = bootstrap.Events.FirstOrDefault(e => e.IsNext)
+                         ?? bootstrap.Events.FirstOrDefault(e => e.IsCurrent);
 
-        if (currentGw is null)
+        if (upcomingGw is null)
             return Result.Success<PreviousPickResultDto?>(null);
 
-        var previousGwId = currentGw.Id - 1;
+        var previousGwId = upcomingGw.Id - 1;
         if (previousGwId < 1)
             return Result.Success<PreviousPickResultDto?>(null);
 

@@ -68,6 +68,7 @@ export function PickPage() {
     onSuccess: () => {
       setSaved(true)
       queryClient.invalidateQueries({ queryKey: ['currentPick'] })
+      queryClient.invalidateQueries({ queryKey: ['picks'] })
       setTimeout(() => setSaved(false), 3000)
     },
   })

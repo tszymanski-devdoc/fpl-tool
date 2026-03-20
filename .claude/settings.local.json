@@ -12,7 +12,8 @@
       "Bash(./node_modules/.bin/tailwindcss init:*)",
       "Bash(node_modules/.bin/tailwindcss.cmd init:*)",
       "Bash(npm run:*)",
-      "Bash(ls -la /c/priv/fpl-tool/*.*)"
+      "Bash(ls -la /c/priv/fpl-tool/*.*)",
+      "Bash(find c:/priv/fpl-tool/src/FplTool.Modules.Leaderboard -type f -name *.cs)"
     ]
   }
 }

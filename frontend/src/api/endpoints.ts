@@ -27,6 +27,8 @@ export interface PlayerSummary {
   totalPoints: number
   nowCost: number
   photoCode?: string
+  opponentTeamShortName?: string
+  isHome?: boolean
 }
 
 export interface AllPlayers {
@@ -38,6 +40,7 @@ export interface AllPlayers {
   page: number
   pageSize: number
   totalPages: number
+  captainPickCounts: Record<number, number>
 }
 
 export interface FplProfile {

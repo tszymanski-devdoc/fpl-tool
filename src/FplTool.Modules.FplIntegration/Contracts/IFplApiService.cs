@@ -8,4 +8,5 @@ public interface IFplApiService
     Task<ManagerPicksResponseDto> GetManagerPicksAsync(int fplManagerId, int gameweekId, CancellationToken ct = default);
     Task<LiveEventDto> GetLiveEventAsync(int gameweekId, CancellationToken ct = default);
     Task<ManagerEntryDto> GetManagerEntryAsync(int fplManagerId, CancellationToken ct = default);
+    Task<List<FixtureDto>> GetFixturesAsync(int gameweekId, CancellationToken ct = default);
 }

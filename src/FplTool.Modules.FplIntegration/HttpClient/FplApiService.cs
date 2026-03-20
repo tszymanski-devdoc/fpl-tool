@@ -53,4 +53,13 @@ internal sealed class FplApiService : IFplApiService
         return await JsonSerializer.DeserializeAsync<ManagerEntryDto>(content, JsonOptions, ct)
                ?? throw new InvalidOperationException("Failed to deserialize manager entry response.");
     }
+
+    public async Task<List<FixtureDto>> GetFixturesAsync(int gameweekId, CancellationToken ct = default)
+    {
+        var response = await _client.Client.GetAsync($"fixtures/?event={gameweekId}", ct);
+        response.EnsureSuccessStatusCode();
+        var content = await response.Content.ReadAsStreamAsync(ct);
+        return await JsonSerializer.DeserializeAsync<List<FixtureDto>>(content, JsonOptions, ct)
+               ?? throw new InvalidOperationException("Failed to deserialize fixtures response.");
+    }
 }

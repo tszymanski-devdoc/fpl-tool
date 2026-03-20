@@ -235,6 +235,7 @@ export function PickPage() {
                   selected={effectiveSelectedPlayerId === p.fplPlayerId}
                   onSelect={(pl) => setSelectedPlayerId(pl.fplPlayerId)}
                   disabled={isDeadlinePassed}
+                  captainCount={data.captainPickCounts[p.fplPlayerId]}
                 />
               </div>
             ))}

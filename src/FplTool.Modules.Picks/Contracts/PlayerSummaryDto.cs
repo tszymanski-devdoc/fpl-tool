@@ -12,7 +12,9 @@ public sealed record PlayerSummaryDto(
     string PositionName,
     int TotalPoints,
     int NowCost,
-    string PhotoCode
+    string PhotoCode,
+    string? OpponentTeamShortName,
+    bool? IsHome
 );
 
 public sealed record AllPlayersDto(
@@ -23,5 +25,6 @@ public sealed record AllPlayersDto(
     int TotalCount,
     int Page,
     int PageSize,
-    int TotalPages
+    int TotalPages,
+    IReadOnlyDictionary<int, int> CaptainPickCounts
 );

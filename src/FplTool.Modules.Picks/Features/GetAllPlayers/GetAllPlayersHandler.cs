@@ -1,7 +1,9 @@
 using FplTool.Modules.FplIntegration.Contracts;
 using FplTool.Modules.Picks.Contracts;
+using FplTool.Modules.Picks.Infrastructure;
 using FplTool.SharedKernel.Results;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace FplTool.Modules.Picks.Features.GetAllPlayers;
 
@@ -13,10 +15,12 @@ internal sealed class GetAllPlayersHandler : IRequestHandler<GetAllPlayersQuery,
     };
 
     private readonly IFplApiService _fplApiService;
+    private readonly PicksDbContext _db;
 
-    public GetAllPlayersHandler(IFplApiService fplApiService)
+    public GetAllPlayersHandler(IFplApiService fplApiService, PicksDbContext db)
     {
         _fplApiService = fplApiService;
+        _db = db;
     }
 
     public async Task<Result<AllPlayersDto>> Handle(GetAllPlayersQuery request, CancellationToken cancellationToken)
@@ -29,7 +33,31 @@ internal sealed class GetAllPlayersHandler : IRequestHandler<GetAllPlayersQuery,
         if (upcomingGw is null)
             return Result.Failure<AllPlayersDto>(Error.Business("NO_ACTIVE_GAMEWEEK", "No active or upcoming gameweek found."));
 
+        // Fetch fixtures and captain counts in parallel
+        var fixturesTask = _fplApiService.GetFixturesAsync(upcomingGw.Id, cancellationToken);
+        var captainCountsTask = _db.CaptainPicks
+            .Where(p => p.GameweekId == upcomingGw.Id)
+            .GroupBy(p => p.FplPlayerId)
+            .Select(g => new { PlayerId = g.Key, Count = g.Count() })
+            .ToListAsync(cancellationToken);
+
+        await Task.WhenAll(fixturesTask, captainCountsTask);
+
+        var fixtures = await fixturesTask;
+        var captainPickCounts = (await captainCountsTask).ToDictionary(x => x.PlayerId, x => x.Count);
+
         var teamMap = bootstrap.Teams.ToDictionary(t => t.Id);
+
+        // Build lookup: teamId -> (opponentShortName, isHome)
+        var fixtureByTeam = new Dictionary<int, (string OpponentShortName, bool IsHome)>();
+        foreach (var f in fixtures)
+        {
+            if (teamMap.TryGetValue(f.TeamH, out var homeTeam) && teamMap.TryGetValue(f.TeamA, out var awayTeam))
+            {
+                fixtureByTeam[f.TeamH] = (awayTeam.ShortName, true);
+                fixtureByTeam[f.TeamA] = (homeTeam.ShortName, false);
+            }
+        }
 
         IEnumerable<PlayerSummaryDto> players = bootstrap.Elements
             .Where(p => teamMap.ContainsKey(p.TeamId))
@@ -37,6 +65,7 @@ internal sealed class GetAllPlayersHandler : IRequestHandler<GetAllPlayersQuery,
             {
                 var team = teamMap[p.TeamId];
                 var positionName = PositionNames.GetValueOrDefault(p.ElementType, "?");
+                fixtureByTeam.TryGetValue(p.TeamId, out var fixture);
                 return new PlayerSummaryDto(
                     p.Id,
                     p.WebName,
@@ -49,7 +78,9 @@ internal sealed class GetAllPlayersHandler : IRequestHandler<GetAllPlayersQuery,
                     positionName,
                     p.TotalPoints,
                     p.NowCost,
-                    p.Photo.Replace(".jpg", "")
+                    p.Photo.Replace(".jpg", ""),
+                    fixture == default ? null : fixture.OpponentShortName,
+                    fixture == default ? null : fixture.IsHome
                 );
             });
 
@@ -87,7 +118,8 @@ internal sealed class GetAllPlayersHandler : IRequestHandler<GetAllPlayersQuery,
             totalCount,
             page,
             pageSize,
-            totalPages
+            totalPages,
+            captainPickCounts
         ));
     }
 }

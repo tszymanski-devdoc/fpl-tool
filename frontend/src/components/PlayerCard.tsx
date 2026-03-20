@@ -14,6 +14,7 @@ interface Props {
   selected: boolean
   onSelect: (player: PlayerSummary) => void
   disabled?: boolean
+  captainCount?: number
 }
 
 const POSITION_BG: Record<number, string> = {
@@ -25,7 +26,7 @@ const POSITION_BG: Record<number, string> = {
 
 const FPL_PHOTO_BASE = 'https://resources.premierleague.com/premierleague/photos/players/110x140'
 
-export function PlayerCard({ player, selected, onSelect, disabled }: Props) {
+export function PlayerCard({ player, selected, onSelect, disabled, captainCount }: Props) {
   const initials = player.webName
     .split(' ')
     .map((w) => w[0])
@@ -37,13 +38,17 @@ export function PlayerCard({ player, selected, onSelect, disabled }: Props) {
     ? `${FPL_PHOTO_BASE}/p${player.photoCode}.png`
     : null
 
+  const fixtureLabel = player.opponentTeamShortName
+    ? `${player.isHome ? 'vs' : '@'} ${player.opponentTeamShortName}`
+    : null
+
   return (
     <motion.button
       onClick={() => !disabled && onSelect(player)}
       whileHover={disabled ? {} : { y: -4, scale: 1.02 }}
       whileTap={disabled ? {} : { scale: 0.97 }}
       className={[
-        'relative flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-colors text-left w-full',
+        'relative flex flex-col items-center gap-1 p-3 rounded-xl border transition-colors text-left w-full',
         selected
           ? 'bg-card-hover border-green glow-green'
           : 'bg-card border-border hover:border-muted',
@@ -94,8 +99,22 @@ export function PlayerCard({ player, selected, onSelect, disabled }: Props) {
         {player.positionName}
       </span>
 
+      {/* Fixture */}
+      {fixtureLabel && (
+        <span className={`font-mono text-xs font-semibold ${player.isHome ? 'text-green/80' : 'text-muted'}`}>
+          {fixtureLabel}
+        </span>
+      )}
+
       {/* Points */}
       <span className="font-mono text-xs text-white/50">{player.totalPoints}pts</span>
+
+      {/* Captain count */}
+      {captainCount !== undefined && captainCount > 0 && (
+        <span className="font-mono text-xs text-amber/80">
+          C ×{captainCount}
+        </span>
+      )}
     </motion.button>
   )
 }

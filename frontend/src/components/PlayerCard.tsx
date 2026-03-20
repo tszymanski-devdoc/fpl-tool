@@ -99,22 +99,18 @@ export function PlayerCard({ player, selected, onSelect, disabled, captainCount 
         {player.positionName}
       </span>
 
-      {/* Fixture */}
-      {fixtureLabel && (
-        <span className={`font-mono text-xs font-semibold ${player.isHome ? 'text-green/80' : 'text-muted'}`}>
-          {fixtureLabel}
-        </span>
-      )}
+      {/* Fixture — always rendered to keep uniform height */}
+      <span className={`font-mono text-xs font-semibold ${fixtureLabel ? (player.isHome ? 'text-green/80' : 'text-muted') : 'invisible'}`}>
+        {fixtureLabel ?? 'vs ???'}
+      </span>
 
       {/* Points */}
       <span className="font-mono text-xs text-white/50">{player.totalPoints}pts</span>
 
-      {/* Captain count */}
-      {captainCount !== undefined && captainCount > 0 && (
-        <span className="font-mono text-xs text-amber/80">
-          C ×{captainCount}
-        </span>
-      )}
+      {/* Captain count — always rendered to keep uniform height */}
+      <span className={`font-mono text-xs text-amber/80 ${captainCount ? '' : 'invisible'}`}>
+        C ×{captainCount ?? 0}
+      </span>
     </motion.button>
   )
 }

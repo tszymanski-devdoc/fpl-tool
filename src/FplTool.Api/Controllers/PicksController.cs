@@ -1,5 +1,6 @@
 using FplTool.Modules.Picks.Features.GetCurrentPick;
 using FplTool.Modules.Picks.Features.GetMyPicks;
+using FplTool.Modules.Picks.Features.GetPreviousPick;
 using FplTool.Modules.Picks.Features.SubmitPick;
 using FplTool.SharedKernel.Interfaces;
 using FplTool.SharedKernel.Results;
@@ -60,6 +61,19 @@ public sealed class PicksController : ControllerBase
 
         if (result.Value is null)
             return NotFound();
+
+        return Ok(result.Value);
+    }
+
+    [HttpGet("previous")]
+    public async Task<IActionResult> GetPreviousPick(
+        [FromServices] ICurrentUserContext currentUser,
+        CancellationToken ct)
+    {
+        var result = await _mediator.Send(new GetPreviousPickQuery(currentUser.UserId), ct);
+
+        if (result.Value is null)
+            return NoContent();
 
         return Ok(result.Value);
     }

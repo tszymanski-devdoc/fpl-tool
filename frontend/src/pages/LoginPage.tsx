@@ -42,7 +42,7 @@ export function LoginPage() {
           transition={{ duration: 0.4 }}
           className="mb-6 px-3 py-1 rounded-full border border-green/30 bg-green/10 text-green text-xs font-mono tracking-widest uppercase"
         >
-          2024/25 Season
+          2025/26 Season
         </motion.div>
 
         {/* Wordmark */}

@@ -15,6 +15,30 @@ public sealed class LiveEventElementStatsDto
 
     [JsonPropertyName("assists")]
     public int Assists { get; init; }
+
+    [JsonPropertyName("clean_sheets")]
+    public int CleanSheets { get; init; }
+
+    [JsonPropertyName("bonus")]
+    public int Bonus { get; init; }
+
+    [JsonPropertyName("yellow_cards")]
+    public int YellowCards { get; init; }
+
+    [JsonPropertyName("red_cards")]
+    public int RedCards { get; init; }
+
+    [JsonPropertyName("saves")]
+    public int Saves { get; init; }
+
+    [JsonPropertyName("penalties_saved")]
+    public int PenaltiesSaved { get; init; }
+
+    [JsonPropertyName("penalties_missed")]
+    public int PenaltiesMissed { get; init; }
+
+    [JsonPropertyName("own_goals")]
+    public int OwnGoals { get; init; }
 }
 
 public sealed class LiveEventElementDto

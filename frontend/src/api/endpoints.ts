@@ -73,6 +73,36 @@ export interface LeaderboardEntry {
   picksCount: number
 }
 
+export interface PlayerStats {
+  minutes: number
+  goalsScored: number
+  assists: number
+  cleanSheets: number
+  bonus: number
+  yellowCards: number
+  redCards: number
+  saves: number
+  penaltiesSaved: number
+  penaltiesMissed: number
+  ownGoals: number
+}
+
+export interface PreviousPickStats {
+  fplPlayerId: number
+  playerWebName: string
+  photoCode: string | null
+  teamShortName: string
+  positionName: string
+  pointsScored: number | null
+  stats: PlayerStats
+}
+
+export interface PreviousPickResult {
+  gameweekId: number
+  gameweekName: string
+  pick: PreviousPickStats | null
+}
+
 export interface GameweekBreakdown {
   gameweekId: number
   userId: string
@@ -113,6 +143,15 @@ export const getPicks = (page = 1, pageSize = 20) =>
 
 export const getCurrentPick = (gameweekId: number) =>
   apiClient.get<CaptainPick | null>(`/api/v1/picks/current`, { params: { gameweekId } }).then((r) => r.data)
+
+export const getPreviousPick = (): Promise<PreviousPickResult | null> =>
+  apiClient
+    .get<PreviousPickResult>('/api/v1/picks/previous')
+    .then((r) => r.data ?? null)
+    .catch((err) => {
+      if (err.response?.status === 204 || err.response?.status === 404) return null
+      throw err
+    })
 
 // ── Leaderboard ────────────────────────────────────────────────────────────
 

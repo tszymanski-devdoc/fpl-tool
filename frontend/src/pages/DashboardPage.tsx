@@ -2,9 +2,10 @@ import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { useAuthStore } from '../stores/authStore'
-import { getPlayers, getCurrentPick, getLeaderboard } from '../api/endpoints'
+import { getPlayers, getCurrentPick, getLeaderboard, getPreviousPick } from '../api/endpoints'
 import { DeadlineCountdown } from '../components/DeadlineCountdown'
 import { Layout } from '../components/Layout'
+import { PreviousPickCard } from '../components/PreviousPickCard'
 
 function StatCard({ label, value, accent = false }: { label: string; value: React.ReactNode; accent?: boolean }) {
   return (
@@ -34,6 +35,12 @@ export function DashboardPage() {
   const { data: leaderboard } = useQuery({
     queryKey: ['leaderboard'],
     queryFn: () => getLeaderboard(),
+  })
+
+  const { data: previousPick } = useQuery({
+    queryKey: ['previousPick'],
+    queryFn: getPreviousPick,
+    staleTime: 10 * 60 * 1000,
   })
 
   const myRank = leaderboard?.findIndex((e) => e.userId === user?.id)
@@ -86,6 +93,9 @@ export function DashboardPage() {
           <StatCard label="Picks Made" value={myEntry?.picksCount ?? '—'} />
           <StatCard label="GW" value={data?.gameweekId ?? '—'} />
         </div>
+
+        {/* Previous GW recap */}
+        {previousPick && <PreviousPickCard result={previousPick} />}
 
         {/* Leaderboard */}
         {leaderboard && leaderboard.length > 0 && (

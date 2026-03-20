@@ -1,4 +1,5 @@
 using FplTool.Modules.Picks.Infrastructure;
+using FplTool.Modules.Picks.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +21,7 @@ public static class PicksModule
             ));
 
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(PicksModule).Assembly));
+        services.AddScoped<IPointsSyncService, PointsSyncService>();
 
         return services;
     }

@@ -7,6 +7,7 @@ public sealed class User
     public string Email { get; private set; } = string.Empty;
     public string DisplayName { get; private set; } = string.Empty;
     public int? FplManagerId { get; private set; }
+    public bool IsAdmin { get; private set; }
     public DateTime CreatedUtc { get; private set; }
     public DateTime UpdatedUtc { get; private set; }
 

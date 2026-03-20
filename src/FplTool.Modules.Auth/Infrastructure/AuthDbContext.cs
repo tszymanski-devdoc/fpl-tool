@@ -20,6 +20,7 @@ public sealed class AuthDbContext : DbContext
             entity.Property(u => u.Email).IsRequired().HasMaxLength(256);
             entity.Property(u => u.DisplayName).IsRequired().HasMaxLength(100);
             entity.Property(u => u.FplManagerId).IsRequired(false);
+            entity.Property(u => u.IsAdmin).IsRequired().HasDefaultValue(false);
             entity.HasIndex(u => u.GoogleSubjectId).IsUnique();
             entity.HasIndex(u => u.FplManagerId);
         });

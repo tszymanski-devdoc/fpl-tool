@@ -21,6 +21,6 @@ internal sealed class GetProfileHandler : IRequestHandler<GetProfileQuery, Resul
         if (user is null)
             return Result.Failure<UserDto>(Error.NotFound("User not found."));
 
-        return Result.Success(new UserDto(user.Id, user.Email, user.DisplayName, user.FplManagerId));
+        return Result.Success(new UserDto(user.Id, user.Email, user.DisplayName, user.FplManagerId, user.IsAdmin));
     }
 }

@@ -7,6 +7,7 @@ export interface User {
   email: string
   displayName: string
   fplManagerId: number | null
+  isAdmin: boolean
 }
 
 export interface AuthResponse {
@@ -152,6 +153,11 @@ export const getPreviousPick = (): Promise<PreviousPickResult | null> =>
       if (err.response?.status === 204 || err.response?.status === 404) return null
       throw err
     })
+
+// ── Admin ──────────────────────────────────────────────────────────────────
+
+export const postForceSync = () =>
+  apiClient.post<{ syncedGameweeks: number[] }>('/api/v1/admin/sync').then((r) => r.data)
 
 // ── Leaderboard ────────────────────────────────────────────────────────────
 

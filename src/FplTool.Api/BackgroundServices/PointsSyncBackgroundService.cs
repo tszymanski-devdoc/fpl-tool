@@ -1,8 +1,4 @@
-using FplTool.Modules.FplIntegration.Contracts;
-using FplTool.Modules.Picks.Features.SyncPoints;
-using FplTool.Modules.Picks.Infrastructure;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
+using FplTool.Modules.Picks.Services;
 
 namespace FplTool.Api.BackgroundServices;
 
@@ -40,31 +36,8 @@ public sealed class PointsSyncBackgroundService : BackgroundService
         try
         {
             await using var scope = _serviceProvider.CreateAsyncScope();
-            var fplService = scope.ServiceProvider.GetRequiredService<IFplApiService>();
-            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-            var picksDb = scope.ServiceProvider.GetRequiredService<PicksDbContext>();
-
-            var bootstrap = await fplService.GetBootstrapStaticAsync(ct);
-
-            var finishedGwIds = bootstrap.Events
-                .Where(e => e.Finished)
-                .Select(e => e.Id)
-                .ToHashSet();
-
-            var alreadySyncedGwIds = (await picksDb.GameweekPointsSyncs
-                .Where(s => s.IsComplete)
-                .Select(s => s.GameweekId)
-                .ToListAsync(ct))
-                .ToHashSet();
-
-            var gwsToSync = finishedGwIds.Except(alreadySyncedGwIds).ToList();
-
-            foreach (var gwId in gwsToSync)
-            {
-                _logger.LogInformation("Syncing points for gameweek {GameweekId}", gwId);
-                await mediator.Send(new SyncGameweekPointsCommand(gwId), ct);
-                _logger.LogInformation("Points synced for gameweek {GameweekId}", gwId);
-            }
+            var syncService = scope.ServiceProvider.GetRequiredService<IPointsSyncService>();
+            await syncService.SyncPendingGameweeksAsync(ct);
         }
         catch (Exception ex)
         {

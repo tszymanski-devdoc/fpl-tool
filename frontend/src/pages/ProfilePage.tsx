@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuthStore } from '../stores/authStore'
-import { patchMe, getFplProfile } from '../api/endpoints'
+import { patchMe, getFplProfile, postForceSync } from '../api/endpoints'
 import { Layout } from '../components/Layout'
 
 export function ProfilePage() {
@@ -25,6 +25,23 @@ export function ProfilePage() {
     },
     onError: () => {
       setToast('Failed to save. Try again.')
+      setTimeout(() => setToast(null), 3000)
+    },
+  })
+
+  const { mutate: runSync, isPending: isSyncing } = useMutation({
+    mutationFn: postForceSync,
+    onSuccess: (data) => {
+      const n = data.syncedGameweeks.length
+      setToast(
+        n > 0
+          ? `Synced GW${data.syncedGameweeks.join(', GW')}`
+          : 'Nothing to sync — all gameweeks up to date.'
+      )
+      setTimeout(() => setToast(null), 5000)
+    },
+    onError: () => {
+      setToast('Sync failed.')
       setTimeout(() => setToast(null), 3000)
     },
   })
@@ -111,6 +128,25 @@ export function ProfilePage() {
             {isPending ? 'Saving…' : 'Save Profile'}
           </button>
         </div>
+
+        {/* Admin */}
+        {user?.isAdmin && (
+          <div className="rounded-xl border border-border bg-card p-5 space-y-3">
+            <div>
+              <p className="text-muted text-xs uppercase tracking-widest">Admin</p>
+              <p className="text-white/70 text-sm mt-1">
+                Trigger points sync for all finished, unsynced gameweeks.
+              </p>
+            </div>
+            <button
+              onClick={() => runSync()}
+              disabled={isSyncing}
+              className="w-full py-2.5 rounded-lg border border-border text-muted text-sm font-medium hover:border-green hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {isSyncing ? 'Syncing…' : 'Force Sync Points'}
+            </button>
+          </div>
+        )}
 
         {/* Toast */}
         <AnimatePresence>

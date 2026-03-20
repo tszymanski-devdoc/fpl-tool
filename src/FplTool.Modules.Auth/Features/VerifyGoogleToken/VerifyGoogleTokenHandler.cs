@@ -50,7 +50,7 @@ internal sealed class VerifyGoogleTokenHandler : IRequestHandler<VerifyGoogleTok
 
         return Result.Success(new AuthResponseDto(
             accessToken,
-            new UserDto(user.Id, user.Email, user.DisplayName, user.FplManagerId)
+            new UserDto(user.Id, user.Email, user.DisplayName, user.FplManagerId, user.IsAdmin)
         ));
     }
 
@@ -94,7 +94,8 @@ internal sealed class VerifyGoogleTokenHandler : IRequestHandler<VerifyGoogleTok
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Email, user.Email),
-            new Claim("display_name", user.DisplayName)
+            new Claim("display_name", user.DisplayName),
+            new Claim("is_admin", user.IsAdmin.ToString().ToLower())
         };
 
         var token = new JwtSecurityToken(

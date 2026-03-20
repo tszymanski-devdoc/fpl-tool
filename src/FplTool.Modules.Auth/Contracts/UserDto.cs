@@ -4,5 +4,6 @@ public sealed record UserDto(
     Guid Id,
     string Email,
     string DisplayName,
-    int? FplManagerId
+    int? FplManagerId,
+    bool IsAdmin
 );

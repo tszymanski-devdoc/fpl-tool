@@ -23,6 +23,6 @@ internal sealed class UpdateProfileHandler : IRequestHandler<UpdateProfileComman
         user.UpdateProfile(request.DisplayName, request.FplManagerId);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        return Result.Success(new UserDto(user.Id, user.Email, user.DisplayName, user.FplManagerId));
+        return Result.Success(new UserDto(user.Id, user.Email, user.DisplayName, user.FplManagerId, user.IsAdmin));
     }
 }

@@ -35,18 +35,26 @@ internal sealed class PointsSyncService : IPointsSyncService
             .Select(e => e.Id)
             .ToHashSet();
 
+        var currentGwIds = bootstrap.Events
+            .Where(e => e.IsCurrent)
+            .Select(e => e.Id)
+            .ToHashSet();
+
         var alreadySyncedGwIds = (await _picksDb.GameweekPointsSyncs
             .Where(s => s.IsComplete)
             .Select(s => s.GameweekId)
             .ToListAsync(cancellationToken))
             .ToHashSet();
 
-        var gwsToSync = finishedGwIds.Except(alreadySyncedGwIds).ToList();
+        // Always include the current (in-progress) GW so live points are updated each tick
+        var gwsToSync = finishedGwIds.Except(alreadySyncedGwIds)
+            .Union(currentGwIds)
+            .ToList();
 
         foreach (var gwId in gwsToSync)
         {
             _logger.LogInformation("Syncing points for gameweek {GameweekId}", gwId);
-            await _mediator.Send(new SyncGameweekPointsCommand(gwId), cancellationToken);
+            await _mediator.Send(new SyncGameweekPointsCommand(gwId, IsFinished: finishedGwIds.Contains(gwId)), cancellationToken);
             _logger.LogInformation("Points synced for gameweek {GameweekId}", gwId);
         }
 

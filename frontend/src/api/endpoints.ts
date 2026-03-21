@@ -163,5 +163,5 @@ export const postForceSync = () =>
 
 export const getLeaderboard = (gameweekId?: number) =>
   apiClient
-    .get<LeaderboardEntry[]>(gameweekId ? `/api/v1/leaderboard/${gameweekId}` : '/api/v1/leaderboard')
+    .get<LeaderboardEntry[]>(gameweekId ? `/api/v1/leaderboard?gameweekId=${gameweekId}` : '/api/v1/leaderboard')
     .then((r) => r.data)

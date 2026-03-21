@@ -14,7 +14,8 @@
       "Bash(npm run:*)",
       "Bash(ls -la /c/priv/fpl-tool/*.*)",
       "Bash(find c:/priv/fpl-tool/src/FplTool.Modules.Leaderboard -type f -name *.cs)",
-      "Bash(dotnet ef:*)"
+      "Bash(dotnet ef:*)",
+      "Bash(xargs grep:*)"
     ]
   }
 }

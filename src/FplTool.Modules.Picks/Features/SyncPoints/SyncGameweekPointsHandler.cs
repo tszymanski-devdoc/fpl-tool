@@ -41,7 +41,8 @@ internal sealed class SyncGameweekPointsHandler : IRequestHandler<SyncGameweekPo
             sync = GameweekPointsSync.Create(request.GameweekId);
             _dbContext.GameweekPointsSyncs.Add(sync);
         }
-        sync.MarkComplete();
+        if (request.IsFinished)
+            sync.MarkComplete();
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return Result.Success();
